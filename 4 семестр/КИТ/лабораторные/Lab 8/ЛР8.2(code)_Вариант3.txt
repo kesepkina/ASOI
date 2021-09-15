@@ -1,0 +1,36 @@
+Option Base 1
+Sub primer8_2()
+Set fso = CreateObject("Scripting.FileSystemObject")
+Set d = Selection
+openf = Application.GetOpenFilename("Text Files (*.txt), *.txt")
+
+If openf = False Then
+MsgBox ("Не удалось открыть файл.")
+Exit Sub
+End If
+
+Set stih = fso.OpenTextFile(openf, ForReading)
+
+znaki = Array(".", ",", ":", ";", "-", "!", "?")
+kol_znak = UBound(znaki)
+
+i = 0
+Do While Not (stih.AtEndOfStream)
+i = i + 1
+stroka = Trim(stih.ReadLine)
+For j = 1 To kol_znak
+Do While (InStr(stroka, znaki(j)) <> 0)
+stroka = Replace(stroka, znaki(j), "")
+Loop
+Next j
+Do While (InStr(stroka, "  ") <> 0)
+stroka = Replace(stroka, "  ", " ")
+Loop
+chasti = Split(stroka, " ")
+kol = UBound(chasti)
+d.Cells(i, 1).Value = kol + 1
+Loop
+
+stih.Close
+
+End Sub

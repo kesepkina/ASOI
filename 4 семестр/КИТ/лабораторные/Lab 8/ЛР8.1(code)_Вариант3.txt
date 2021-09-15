@@ -1,0 +1,52 @@
+Sub primer8_1()
+Set fso = CreateObject("Scripting.FileSystemObject")
+Dim nazv() As String, k() As Single
+Set d = Cells(1, 1).CurrentRegion
+m = d.Rows.Count
+openf = Application.GetOpenFilename("Text Files (*.txt), *.txt")
+
+If openf = False Then
+MsgBox ("Не удалось открыть файл.")
+Exit Sub
+End If
+
+Set koef = fso.OpenTextFile(openf, ForReading)
+output = InputBox("Укажите имя файла для вывода данных об изменённых контрактах.")
+Set changed = fso.OpenTextFile(output, ForWriting, True)
+
+ReDim nazv(1 To m), k(1 To m)
+n = 0
+Do While Not (koef.AtEndOfStream)
+stroka = koef.ReadLine
+dannye = Split(stroka, " ")
+n = n + 1
+nazv(n) = dannye(0)
+k(n) = CSng(dannye(1))
+Loop
+
+For i = 1 To n - 1
+For j = i + 1 To n
+If StrComp(nazv(i), nazv(j)) = 1 Then
+t = nazv(i): x = k(i)
+nazv(i) = nazv(j): k(i) = k(j)
+nazv(j) = t: k(j) = x
+End If
+Next j
+Next i
+
+For i = 1 To n
+For j = 1 To m
+If StrComp(d.Cells(j, 2).Value, nazv(i)) = 0 Then
+d.Cells(j, 3).Value = d.Cells(j, 3).Value * k(i)
+stroka = CStr(d.Cells(j, 1).Value)
+For p = 2 To 4
+stroka = stroka + " " + CStr(d.Cells(j, p).Value)
+Next p
+changed.WriteLine (stroka)
+End If
+Next j
+Next i
+
+koef.Close
+changed.Close
+End Sub
